@@ -1,6 +1,5 @@
 const db = require("./firestore");
 
-// Buscar libros con filtros (idioma, nota, fecha, límite)
 const obtenerTodosLosLibros = async (filterParams) => {
     try {
         let query = db.collection("books");
@@ -21,7 +20,7 @@ const obtenerTodosLosLibros = async (filterParams) => {
 
         const limit = parseInt(filterParams.limit) || 10;
         const offset = parseInt(filterParams.offset) || 0;
-        
+       
         query = query.limit(limit).offset(offset);
 
         const snapshot = await query.get();
@@ -31,7 +30,6 @@ const obtenerTodosLosLibros = async (filterParams) => {
     }
 };
 
-// Obtener un solo libro por su ID
 const obtenerUnLibro = async (libroId) => {
     try {
         const doc = await db.collection("books").doc(libroId).get();
@@ -41,7 +39,6 @@ const obtenerUnLibro = async (libroId) => {
     }
 };
 
-// Guardar un libro nuevo usando su ID de Google
 const crearNuevoLibro = async (nuevoLibro) => {
     try {
         await db.collection("books").doc(nuevoLibro.googleId).set(nuevoLibro);
@@ -51,7 +48,6 @@ const crearNuevoLibro = async (nuevoLibro) => {
     }
 };
 
-// Modificar datos de un libro existente
 const actualizarLibro = async (libroId, cambios) => {
     try {
         await db.collection("books").doc(libroId).update(cambios);
@@ -62,7 +58,6 @@ const actualizarLibro = async (libroId, cambios) => {
     }
 };
 
-// Eliminar un libro de la base de datos
 const borrarUnLibro = async (libroId) => {
     try {
         await db.collection("books").doc(libroId).delete();
@@ -71,13 +66,14 @@ const borrarUnLibro = async (libroId) => {
     }
 };
 
-// Buscar libros por género exacto
 const obtenerLibrosPorGenero = async (genero) => {
     try {
         let query = db.collection("books");
         query = query.where("genre", "==", genero);
         const snapshot = await query.get();
-        if (snapshot.empty) return [];
+        if (snapshot.empty) {
+            return [];
+        }
 
         return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
@@ -85,13 +81,14 @@ const obtenerLibrosPorGenero = async (genero) => {
     }
 };
 
-// Buscar libros por título exacto
 const obtenerLibrosPorTitulo = async (titulo) => {
     try {
         let query = db.collection("books");
         query = query.where("title", "==", titulo);
         const snapshot = await query.get();
-        if (snapshot.empty) return [];
+        if (snapshot.empty) {
+            return [];
+        }
 
         return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
@@ -99,31 +96,36 @@ const obtenerLibrosPorTitulo = async (titulo) => {
     }
 };
 
-// Traer los 10 libros con mejor puntuación
 const obtenerLibrosMasPopulares = async () => {
     try {
         let query = db.collection("books");
         query = query.orderBy("appRating", "desc").limit(10);
+
         const snapshot = await query.get();
-        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        return snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+        }));
     } catch (error) {
         throw error;
     }
 };
 
-// Traer los 10 libros más nuevos según fecha de publicación
 const obtenerLibrosRecientes = async () => {
     try {
         let query = db.collection("books");
         query = query.orderBy("publishedDate", "desc").limit(10);
         const snapshot = await query.get();
-        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        return snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data()
+        }));
     } catch (error) {
         throw error;
     }
 };
 
-// Reemplazar todos los datos de un libro
 const sustituirLibro = async (libroId, datosCompletos) => {
     try {
         await db.collection("books").doc(libroId).set(datosCompletos);

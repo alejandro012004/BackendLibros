@@ -1,8 +1,8 @@
 const Libro = require("../database/libro");
 const Usuario = require("../database/usuario");
+
 const NodeCache = require("node-cache");
 
-// Creamos una memoria temporal (Cache) para no pedir datos repetidos a la DB cada segundo
 const myCache = new NodeCache({ stdTTL: 600 });
 
 const obtenerTodosLosLibros = async (filterParams) => {
@@ -25,7 +25,6 @@ const obtenerUnLibro = async (libroId) => {
     }
 };
 
-// Crea un libro nuevo si no existe ya el mismo ID de Google
 const crearNuevoLibro = async (nuevoLibro) => {
     try {
         const libroExistente = await Libro.obtenerUnLibro(nuevoLibro.googleId);
@@ -91,7 +90,6 @@ const obtenerLibrosPorTitulo = async (titulo) => {
     }
 };
 
-// Busca populares: primero mira en el "Cache" (memoria rápida), si no están, va a la DB
 const obtenerLibrosMasPopulares = async () => {
     try {
         const cacheKey = "libros_populares";
@@ -103,7 +101,7 @@ const obtenerLibrosMasPopulares = async () => {
 
         const librosPopulares = await Libro.obtenerLibrosMasPopulares();
         myCache.set(cacheKey, librosPopulares);
-        
+       
         return librosPopulares;
     } catch (error) {
         throw { status: error?.status || 500, message: error?.message || error };
@@ -118,23 +116,21 @@ const obtenerLibrosRecientes = async () => {
     }
 };
 
-// Busca los IDs de favoritos del usuario y luego pide los datos de cada libro
 const obtenerMisFavoritos = async (email) => {
     try {
         const idsFavoritos = await Usuario.obtenerFavoritos(email);
-        
+       
         if (idsFavoritos.length === 0) return [];
 
         const promesas = idsFavoritos.map(id => Libro.obtenerUnLibro(id));
         const librosCompletos = await Promise.all(promesas);
-        
+       
         return librosCompletos.filter(l => l !== null);
     } catch (error) {
         throw { status: 500, message: error.message };
     }
 };
 
-// Reemplaza un libro mezclando lo nuevo con lo que ya había si falta algo
 const sustituirLibro = async (libroId, datosNuevos) => {
     try {
         const libroExistente = await Libro.obtenerUnLibro(libroId);

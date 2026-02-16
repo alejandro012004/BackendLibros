@@ -2,7 +2,6 @@ const authService = require("../services/authService");
 
 const registrar = async (req, res) => {
     const { body } = req;
-    // Valido que no me envíen campos vacíos
     if (!body.email || !body.password || !body.nombre) {
         return res.status(400).send({ status: "FAILED", data: { error: "Faltan campos obligatorios" } });
     }
@@ -20,7 +19,6 @@ const login = async (req, res) => {
         return res.status(400).send({ status: "FAILED", data: { error: "Email y password requeridos" } });
     }
     try {
-        // Le paso los datos al servicio para que compruebe si el usuario existe y la contraseña es OK
         const datosLogin = await authService.login(email, password);
         res.send({ status: "OK", data: datosLogin });
     } catch (error) {
@@ -29,7 +27,7 @@ const login = async (req, res) => {
 };
 
 const actualizarUsuario = async (req, res) => {
-    const { email } = req.params; // Saco el email de la URL
+    const { email } = req.params;
     const { body } = req;
     try {
         const usuarioActualizado = await authService.actualizarUsuario(email, body);
