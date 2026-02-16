@@ -1,7 +1,130 @@
-📚 API de Gestión de Libros - Proyecto PSPEsta es una API REST desarrollada en Node.js para la gestión de una biblioteca, utilizando Firebase Firestore como base de datos. El proyecto incluye scripts de automatización para la carga de datos y está preparado para ejecutarse mediante Docker.🚀 Requisitos PreviosAntes de empezar, asegúrate de tener instalado:Node.js (v18 o superior)Docker Desktop (opcional, para ejecución en contenedores)Un archivo de credenciales de Firebase: serviceAccountKey.json.🛠️ Instalación y ConfiguraciónClonar el repositorio:Bashgit clone <url-de-tu-repositorio>
-cd <nombre-de-la-carpeta>
-Instalar dependencias:Bashnpm install
-Configurar credenciales:Coloca tu archivo serviceAccountKey.json (generado desde la consola de Firebase) en la raíz del proyecto.Crea un archivo .env basado en el archivo .env.example (si lo hubiera) con las variables necesarias.🗄️ Inicialización de la Base de DatosPara que la aplicación funcione con datos de prueba desde el primer segundo, he incluido un script de semilla (seeding) que carga automáticamente el catálogo de libros en Firestore.Ejecuta el siguiente comando en tu terminal:Bashnpm run seed
-Nota: Este comando ejecutará el archivo import.js, el cual lee el JSON de libros e inyecta los documentos en tu colección de Firebase de forma automática.⚙️ Ejecución de la AplicaciónTienes dos formas de levantar el proyecto:Opción A: Ejecución Local (Desarrollo)Para levantar la API en modo desarrollo con recarga automática:Bashnpm run dev
-La API estará disponible en: http://localhost:3000Opción B: Ejecución con Docker (Recomendado)Para replicar el entorno exacto de producción con un solo comando:Bashdocker-compose up --build
-🛠️ Tecnologías UtilizadasTecnologíaUsoNode.jsEntorno de ejecuciónExpressFramework de la APIFirebase Admin SDKGestión de base de datosDockerContenedorizaciónCloudinaryAlmacenamiento de imágenes de portadas
+# 📚 API de Gestión de Libros - Proyecto PSP
+
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+
+Este proyecto es una API REST profesional diseñada para gestionar un catálogo de libros, integrando **Firebase Firestore** como base de datos y utilizando **Docker** para garantizar la replicabilidad del entorno.
+
+---
+
+## 📋 Requisitos Previos
+
+Para ejecutar este proyecto, necesitarás:
+* **Node.js** (v18 o superior)
+* **Docker Desktop** (para ejecución en contenedores)
+* **Credenciales de Firebase**: Debes poseer el archivo `serviceAccountKey.json`.
+
+---
+
+## 🛠️ Instalación y Configuración
+
+1. **Clonar el repositorio:**
+   ```bash
+   git clone <tu-enlace-de-github>
+   cd <nombre-de-tu-carpeta>
+Configurar Credenciales (OBLIGATORIO):
+Para que la app conecte con la base de datos, coloca tu archivo de clave privada en la raíz del proyecto con el nombre:
+
+serviceAccountKey.json
+(Este archivo está excluido del repositorio por seguridad).
+
+🗄️ Inicialización de Datos (Seeding)
+He incluido un script de automatización que carga el catálogo inicial de libros directamente en tu instancia de Firebase.
+
+Para poblar la base de datos, ejecuta:
+
+Bash
+
+npm install
+npm run seed
+⚙️ Modos de Ejecución
+A. Docker (Recomendado para Evaluación)
+Para levantar todo el entorno (API + Configuración) con un solo comando:
+
+Bash
+
+docker-compose up --build
+La API estará disponible en: http://localhost:3000
+
+B. Local (Desarrollo)
+Bash
+
+npm run dev
+🚀 Puntos destacados para la Defensa
+Automatización: Uso de un script de seeding para asegurar datos de prueba inmediatos.
+
+Contenedorización: Configuración completa de Docker para asegurar que el proyecto sea replicable.
+
+Seguridad: Gestión de credenciales mediante archivos externos protegidos.
+
+
+---
+
+### 2. `docker-compose.yml` (El orquestador)
+Este archivo hace que el comando `docker-compose up` funcione.
+```yaml
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: api_libros_psp
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: always
+3. Dockerfile (La receta del contenedor)
+Dockerfile
+
+# Usamos una imagen ligera de Node
+FROM node:18-alpine
+
+# Directorio de trabajo
+WORKDIR /app
+
+# Copiamos archivos de dependencias
+COPY package*.json ./
+
+# Instalamos dependencias
+RUN npm install
+
+# Copiamos el resto del código (incluyendo serviceAccountKey.json si existe)
+COPY . .
+
+# Exponemos el puerto de la API
+EXPOSE 3000
+
+# Comando para arrancar
+CMD ["npm", "start"]
+4. .gitignore (Seguridad ante todo)
+¡Copia esto para no subir tus contraseñas a GitHub por accidente!
+
+Plaintext
+
+# Dependencias
+node_modules/
+
+# Seguridad (Credenciales Firebase)
+serviceAccountKey.json
+
+# Variables de entorno
+.env
+
+# Logs y otros
+npm-debug.log*
+.DS_Store
+💡 Último paso en tu package.json
+Asegúrate de que tus scripts se vean así para que los comandos del README funcionen:
+
+JSON
+
+"scripts": {
+  "start": "node src/index.js",
+  "dev": "nodemon src/index.js",
+  "seed": "node import.js"
+}
