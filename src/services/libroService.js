@@ -29,11 +29,13 @@ const crearNuevoLibro = async (nuevoLibro) => {
     try {
         const libroExistente = await Libro.obtenerUnLibro(nuevoLibro.googleId);
         if (libroExistente) {
-            throw { status: 404, message: `El libro con googleId '${nuevoLibro.googleId}' ya existe` };
+            throw { status: 400, message: `El libro con googleId '${nuevoLibro.googleId}' ya existe` };
         }
 
         const libroAInsertar = {
             ...nuevoLibro,
+            appRating: nuevoLibro.appRating || 0,
+            appReviewsCount: nuevoLibro.appReviewsCount || 0,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
         };

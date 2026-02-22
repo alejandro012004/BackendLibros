@@ -34,18 +34,23 @@ const obtenerUnLibro = async (req, res) => {
 
 const crearNuevoLibro = async (req, res) => {
   try {
-    let { image, ...datosLibro } = req.body;
+    const datosLibro = req.body;
 
-    if (image) {
-      const urlSegura = await subirImagen(image);
-      if (urlSegura) image = urlSegura;
+    if (!datosLibro.googleId) {
+        return res.status(400).json({ 
+            status: "FAILED", 
+            data: { error: "El campo googleId es obligatorio" } 
+        });
     }
 
-    const nuevoLibro = await Libro.create({ ...datosLibro, image });
+    const nuevoLibro = await libroService.crearNuevoLibro(datosLibro);
    
     res.status(201).json({ status: "OK", data: nuevoLibro });
   } catch (error) {
-    res.status(500).json({ status: "FAILED", error: error.message });
+    res.status(error.status || 500).json({ 
+        status: "FAILED", 
+        data: { error: error.message || error } 
+    });
   }
 };
 
