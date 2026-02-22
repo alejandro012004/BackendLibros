@@ -13,9 +13,9 @@ const obtenerTodosLosLibros = async (filterParams) => {
         }
 
         if (filterParams.sortDate === 'desc') {
-            query = query.orderBy("createdAt", "desc");
+            query = query.orderBy("publishedDate", "desc");
         } else if (filterParams.sortDate === 'asc') {
-            query = query.orderBy("createdAt", "asc");
+            query = query.orderBy("publishedDate", "asc");
         }
 
         const limit = parseInt(filterParams.limit) || 10;
