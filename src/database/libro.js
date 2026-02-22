@@ -9,23 +9,35 @@ const obtenerTodosLosLibros = async (filterParams) => {
         }
 
         if (filterParams.minRating) {
-            query = query.where("appRating", ">=", Number(filterParams.minRating));
+            const rating = Number(filterParams.minRating);
+            if (!isNaN(rating)) {
+                query = query.where("appRating", ">=", rating);
+            }
         }
+        const direccion = filterParams.sortDate === 'asc' ? 'asc' : 'desc';
+        
 
-        if (filterParams.sortDate === 'desc') {
-            query = query.orderBy("publishedDate", "desc");
-        } else if (filterParams.sortDate === 'asc') {
-            query = query.orderBy("publishedDate", "asc");
-        }
+        query = query.orderBy("publishedDate", direccion);
 
-        const limit = parseInt(filterParams.limit) || 10;
+        const limit = parseInt(filterParams.limit) || 20; // Subimos el límite por defecto
         const offset = parseInt(filterParams.offset) || 0;
-       
-        query = query.limit(limit).offset(offset);
+
+        if (offset > 0) {
+            query = query.offset(offset);
+        }
+        query = query.limit(limit);
 
         const snapshot = await query.get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        if (snapshot.empty) return [];
+
+        return snapshot.docs.map(doc => ({ 
+            id: doc.id, 
+            ...doc.data() 
+        }));
+
     } catch (error) {
+        console.error("Error en obtenerTodosLosLibros:", error.message);
         throw error;
     }
 };
